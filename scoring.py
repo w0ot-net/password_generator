@@ -9,6 +9,8 @@ def score_password(password, company, city, current_year):
     pw_lower = password.lower()
     company_lower = company.lower() if company else ""
     city_lower = city.lower() if city else ""
+    recent_years = {str(current_year - 1), str(current_year), str(current_year + 1)}
+    recent_year_suffixes = {str(current_year - 1)[2:], str(current_year)[2:], str(current_year + 1)[2:]}
 
     # High-value base words
     if pw_lower.startswith("password"):
@@ -80,6 +82,36 @@ def score_password(password, company, city, current_year):
             score += 10
         if any(ch in "!@#$" for ch in password):
             score += 6
+
+    # Hard-boost seasonal patterns: <season>@<year> and <season><year>!
+    for season in seasons:
+        for year in recent_years:
+            if pw_lower == f"{season}@{year}":
+                score += 500
+            if pw_lower == f"{season}{year}!":
+                score += 500
+        for yr in recent_year_suffixes:
+            if pw_lower == f"{season}@{yr}":
+                score += 480
+            if pw_lower == f"{season}{yr}!":
+                score += 480
+
+    # Boost common company/year patterns near the end of the string
+    if company_lower and company_lower in pw_lower:
+        for year in recent_years:
+            if pw_lower.endswith(year):
+                score += 16
+                break
+            if any(pw_lower.endswith(f"{year}{suffix}") for suffix in ("!", "1", "@", "#", "$")):
+                score += 20
+                break
+        for yr in recent_year_suffixes:
+            if pw_lower.endswith(yr):
+                score += 10
+                break
+            if any(pw_lower.endswith(f"{yr}{suffix}") for suffix in ("!", "1", "@", "#", "$")):
+                score += 14
+                break
 
     # Shorter passwords slightly more common
     if len(password) <= 10:
