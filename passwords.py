@@ -17,6 +17,12 @@ def add_variants(results, base, suffixes):
 
 
 def create_password_list(company, include_seasons=True, base_year=None, year_range=2, city=None):
+    if not company or not str(company).strip():
+        raise ValueError("company must be a non-empty string")
+
+    company = str(company).strip()
+    city = str(city).strip() if city and str(city).strip() else None
+
     if base_year is None:
         base_year = datetime.now().year - 1
     
@@ -78,6 +84,10 @@ def main():
     parser.add_argument("-o", "--output", help="Output file (default: stdout)")
     
     args = parser.parse_args()
+
+    if not args.company.strip():
+        print("Company name must be non-empty.", file=sys.stderr)
+        return 1
     
     passwords = create_password_list(
         company=args.company,
@@ -94,7 +104,8 @@ def main():
     else:
         for password in passwords:
             print(password)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

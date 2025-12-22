@@ -2,14 +2,21 @@
 
 def score_password(password, company, city, current_year):
     """Score a password by likelihood of being used (higher = more likely)."""
+    if not password:
+        return 0
+
     score = 0
     pw_lower = password.lower()
+    company_lower = company.lower() if company else ""
+    city_lower = city.lower() if city else ""
 
     # High-value base words
     if pw_lower.startswith("password"):
         score += 100
-    if company and pw_lower.startswith(company.lower()):
+    if company_lower and pw_lower.startswith(company_lower):
         score += 80
+    if company_lower and company_lower in pw_lower:
+        score += 25
 
     # Season words are very common
     seasons = ["spring", "summer", "winter", "fall", "autumn"]
@@ -19,8 +26,10 @@ def score_password(password, company, city, current_year):
             break
 
     # City is moderately common
-    if city and pw_lower.startswith(city.lower()):
+    if city_lower and pw_lower.startswith(city_lower):
         score += 50
+    if city_lower and city_lower in pw_lower:
+        score += 15
 
     # @ symbol is a common substitution
     if "@" in password:
@@ -36,14 +45,19 @@ def score_password(password, company, city, current_year):
             break
 
     # Simple suffixes are most common
-    if password.endswith("1"):
-        score += 40
-    elif password.endswith("!"):
-        score += 35
-    elif password.endswith("123"):
-        score += 30
-    elif password.endswith("123!"):
-        score += 28
+    common_suffixes = [
+        ("1", 40),
+        ("!", 35),
+        ("123", 30),
+        ("123!", 28),
+        ("2024", 22),
+        ("2023", 18),
+        ("2025", 18),
+    ]
+    for suffix, weight in common_suffixes:
+        if password.endswith(suffix):
+            score += weight
+            break
 
     # Penalize longer/complex suffixes
     if password.endswith("1234567"):
@@ -55,13 +69,22 @@ def score_password(password, company, city, current_year):
         score += 50
 
     # Proper capitalization is more common
-    if password[0].isupper() and password[1:].islower() == False:
-        score += 5
-    if password[0].isupper():
-        score += 10
+    if len(password) > 1 and password[0].isupper() and password[1:].islower():
+        score += 12
+    elif password[0].isupper():
+        score += 6
+
+    # Prefer common separator patterns (company or season + year + suffix)
+    if any(token in pw_lower for token in [company_lower, city_lower, "spring", "summer", "fall", "autumn", "winter"]):
+        if any(ch.isdigit() for ch in password):
+            score += 10
+        if any(ch in "!@#$" for ch in password):
+            score += 6
 
     # Shorter passwords slightly more common
     if len(password) <= 10:
         score += 5
+    elif len(password) >= 20:
+        score -= 5
 
     return score
