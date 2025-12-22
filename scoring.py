@@ -67,7 +67,9 @@ def score_password(password, company, city, current_year):
 
     # Common one-offs get a boost
     common_oneoffs = ["Password1", "P@ssw0rd"]
-    if password in common_oneoffs:
+    if password == "Password1":
+        score += 1000
+    elif password in common_oneoffs:
         score += 50
 
     # Proper capitalization is more common
