@@ -115,6 +115,12 @@ def score_password(password, company, city, current_year):
                 score += 14
                 break
 
+    # De-prioritize weak patterns: <company>@<year>@/#/$
+    if company_lower:
+        for year in recent_years | recent_year_suffixes:
+            if pw_lower == f"{company_lower}@{year}@" or pw_lower == f"{company_lower}@{year}#" or pw_lower == f"{company_lower}@{year}$":
+                score -= 80
+
     # Shorter passwords slightly more common
     if len(password) <= 10:
         score += 5
