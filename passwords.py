@@ -59,9 +59,12 @@ def create_password_list(company, include_seasons=True, base_year=None, year_ran
             numbers = ""
             for k in range(1, 8):
                 numbers += str(k)
-                if len(numbers) >= 3:
+                if len(numbers) == 3:
                     add_variants(results, f"{variant}{numbers}", BASE_SPECIALS)
                     add_variants(results, f"{variant}@{numbers}", BASE_SPECIALS)
+                elif len(numbers) > 3:
+                    results.add(f"{variant}{numbers}")
+                    results.add(f"{variant}@{numbers}")
     
     sorted_results = sorted(
         results,
