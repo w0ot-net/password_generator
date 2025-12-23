@@ -72,6 +72,12 @@ def score_password(password, company, city, current_year):
     elif password in common_oneoffs:
         score += 50
 
+    # Extremely common weak passwords should surface near the top
+    if pw_lower in {"letmein", "welcome"}:
+        score += 700
+    if password == "P@ssw0rd":
+        score += 650
+
     # Proper capitalization is more common
     if len(password) > 1 and password[0].isupper() and password[1:].islower():
         score += 12

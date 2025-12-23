@@ -51,9 +51,9 @@ def create_password_list(company, include_seasons=True, base_year=None, year_ran
             
             # Year-based combinations (no trailing "1")
             for year in range(base_year, base_year + year_range + 1):
-                for yr in [str(year), str(year)[2:]]:
-                    add_variants(results, f"{variant}{yr}", BASE_SPECIALS)
-                    add_variants(results, f"{variant}@{yr}", BASE_SPECIALS)
+                yr = str(year)
+                add_variants(results, f"{variant}{yr}", BASE_SPECIALS)
+                add_variants(results, f"{variant}@{yr}", BASE_SPECIALS)
             
             # Number sequences (no trailing "1")
             numbers = ""
